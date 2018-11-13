@@ -23,7 +23,7 @@ class HeatCascade:
         self.T_pinch = None
         for c in self.cascades:
             q = c.feasible_cascade(q)
-            if q == 0:
+            if q <= 1e-5:
                 self.T_pinch = c.T_c
 
         self.hot_utility = -violation
@@ -37,9 +37,11 @@ class HeatCascade:
         print("Pinch temperature is at shifted T = {}".format(self.T_pinch))
         print("Minimum Hot Utility = {}, Minimum Cold Utility = {}".format(self.hot_utility, self.cold_utility))
 
-        cascades_list = [self.cascades[0].T_h, 0, 0, 0, 0, self.hot_utility]
+        cascades_list = [[self.cascades[0].T_h, 0, 0, 0, 0, self.hot_utility]]
         for c in self.cascades:
             cascades_list.append([c.T_c, c.dT, c.CP_total, c.dH, c.ihc, c.fhc])
+
+        pd.options.display.max_columns = 6
         print(pd.DataFrame(cascades_list,
                            columns=['S', 'dS', 'CP total', 'dH', 'Infeasible Cascade', 'Feasible Cascade']))
         print("=" * 32)

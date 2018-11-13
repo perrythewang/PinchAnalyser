@@ -5,7 +5,10 @@ TYPE_COLD = 1
 
 
 class CompositeCurve:
-    def __init__(self, hot_streams, cold_streams, hot_intervals, cold_intervals, hot_utility, cold_utility):
+    def __init__(self, hot_streams, cold_streams,
+                 hot_intervals, cold_intervals,
+                 hot_utility, cold_utility,
+                 T_pinch, dTmin):
         # Populate composite curve intervals
         self.hot_streams = hot_streams
         self.cold_streams = cold_streams
@@ -13,6 +16,8 @@ class CompositeCurve:
         self.cold_composite_curve = []
         self.hot_utility = hot_utility
         self.cold_utility = cold_utility
+        self.T_pinch = T_pinch
+        self.dTmin = dTmin
 
         for i in range(len(hot_intervals) - 1):
             interval = CompositeCurveInterval(TYPE_HOT, hot_intervals[i], hot_intervals[i + 1])
@@ -40,6 +45,30 @@ class CompositeCurve:
 
         plt.show()
 
+    def get_streams_below_pinch(self):
+        streams = []
+        for stream in self.hot_streams:
+            if stream.T_t < self.T_pinch + self.dTmin/2:
+                streams.append(stream)
+
+        for stream in self.cold_streams:
+            if stream.T_s < self.T_pinch - self.dTmin/2:
+                streams.append(stream)
+
+        return streams
+
+    def get_streams_above_pinch(self):
+        streams = []
+        for stream in self.hot_streams:
+            if stream.T_s > self.T_pinch + self.dTmin/2:
+                streams.append(stream)
+
+        for stream in self.cold_streams:
+            if stream.T_t > self.T_pinch - self.dTmin/2:
+                streams.append(stream)
+
+        return streams
+
 
 class CompositeCurveInterval:
     def __init__(self, type, T_h, T_c):
@@ -52,6 +81,7 @@ class CompositeCurveInterval:
         self.type = type
         self.CP = 0
         self.streams = []
+        self.Q = -1
 
     def extract(self, streams):
         for s in streams:
@@ -63,6 +93,7 @@ class CompositeCurveInterval:
                 if s.T_t > self.T_c and s.T_s < self.T_h:
                     self.CP += s.CP
                     self.streams.append(s)
+        # assert len(self.streams) > 0
 
     def get_heat_load(self):
         return self.CP * self.dT

@@ -1,4 +1,4 @@
-from Stream import Stream
+from stream import Stream
 
 VAR_TS = 0
 VAR_TT = 1

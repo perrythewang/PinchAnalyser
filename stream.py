@@ -46,9 +46,14 @@ class Stream:
 class StreamManager():
     def __init__(self, streams_list=None):
         self.streams = []
-        if not streams_list is None:
+        if streams_list is not None:
             for s in streams_list:
                 self.add_stream(s)
+
+    def _add_stream_np(self, np_slice):
+        print(np_slice)
+        print(list(np_slice))
+        self.add_stream(list(np_slice))
 
     def add_stream(self, stream):
         if isinstance(stream, list):
